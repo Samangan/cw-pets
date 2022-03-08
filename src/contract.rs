@@ -20,6 +20,8 @@ pub fn instantiate(
 ) -> Result<Response, ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
 
+    // TODO: Validate `msg.name`
+
     let pet = Pet::new(info.sender.clone(), msg.name);
     PETS.save(deps.storage, &pet)?;
 
@@ -75,10 +77,9 @@ fn query_pet_status(deps: Deps) -> StdResult<PetResponse> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::pet::pet::{PetType, Stage};
     use cosmwasm_std::testing::{mock_dependencies_with_balance, mock_env, mock_info};
     use cosmwasm_std::{coins, from_binary};
-
-    use crate::pet::pet::Stage;
 
     #[test]
     fn proper_initialization() {
@@ -98,7 +99,9 @@ mod tests {
         let pet: PetResponse = from_binary(&res).unwrap();
         assert_eq!("peepo", pet.name);
         assert_eq!(Stage::Egg, pet.stage);
+        assert_eq!(PetType::Fire, pet.pet_type);
     }
+
     #[test]
     fn test_water() {
         let mut deps = mock_dependencies_with_balance(&coins(2, "token"));

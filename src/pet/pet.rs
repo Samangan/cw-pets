@@ -1,9 +1,3 @@
-// use rand::SeedableRng;
-// use rand::{
-//     distributions::{Distribution, Standard},
-//     rngs::StdRng,
-//     Rng,
-// };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::time::SystemTime;
@@ -11,7 +5,7 @@ use std::time::SystemTime;
 use cosmwasm_std::Addr;
 use cw_storage_plus::Item;
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema, Copy)]
 pub enum PetType {
     Water,
     Fire,
@@ -20,19 +14,6 @@ pub enum PetType {
     Ground,
     Space,
 }
-
-// impl Distribution<PetType> for Standard {
-//     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> PetType {
-//         match rng.gen_range(0..=5) {
-//             0 => PetType::Water,
-//             1 => PetType::Fire,
-//             2 => PetType::Grass,
-//             3 => PetType::Air,
-//             4 => PetType::Ground,
-//             _ => PetType::Space,
-//         }
-//     }
-// }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub enum Stage {
@@ -50,25 +31,25 @@ pub struct Pet {
     pub last_watering_time: SystemTime,
     pub last_feeding_time: SystemTime,
     pub birth_date: SystemTime,
-    seed: u64,
 }
 
 impl Pet {
     pub fn new(owner: Addr, name: String) -> Pet {
         let now = SystemTime::now();
-        let seed = now
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-        //let mut r = StdRng::seed_from_u64(seed);
+        let options = [
+            PetType::Water,
+            PetType::Fire,
+            PetType::Grass,
+            PetType::Air,
+            PetType::Ground,
+            PetType::Space,
+        ];
+        let idx = name.chars().take(1).last().unwrap().to_digit(32).unwrap() as usize;
 
         Pet {
             owner,
             name,
-            seed,
-            // TODO: How do I do RNG inside of the WASM runtime?
-            // pet_type: r.gen(),
-            pet_type: PetType::Air,
+            pet_type: options[idx % options.len()],
             stage: Stage::Egg,
             last_watering_time: now,
             last_feeding_time: now,
