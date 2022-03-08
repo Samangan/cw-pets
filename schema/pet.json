@@ -9,7 +9,6 @@
     "name",
     "owner",
     "pet_type",
-    "seed",
     "stage"
   ],
   "properties": {
@@ -30,11 +29,6 @@
     },
     "pet_type": {
       "$ref": "#/definitions/PetType"
-    },
-    "seed": {
-      "type": "integer",
-      "format": "uint64",
-      "minimum": 0.0
     },
     "stage": {
       "$ref": "#/definitions/Stage"

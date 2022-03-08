@@ -5,7 +5,7 @@ use cw2::set_contract_version;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, PetResponse, QueryMsg};
-use crate::pet::pet::{Pet, PETS};
+use crate::pet::state::{Pet, PETS};
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:cw-pets";
@@ -77,7 +77,7 @@ fn query_pet_status(deps: Deps) -> StdResult<PetResponse> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::pet::pet::{PetType, Stage};
+    use crate::pet::state::{PetType, Stage};
     use cosmwasm_std::testing::{mock_dependencies_with_balance, mock_env, mock_info};
     use cosmwasm_std::{coins, from_binary};
 
