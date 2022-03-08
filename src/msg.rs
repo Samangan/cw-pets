@@ -1,27 +1,37 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use std::time::SystemTime;
+
+use crate::pet::pet::{PetType, Stage};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct InstantiateMsg {
-    pub count: i32,
+    pub name: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ExecuteMsg {
-    Increment {},
-    Reset { count: i32 },
+    GiveWater {},
+    // TODO: Finish
+    //Feed {},
+    //Pet {},
+    // TODO: Breed
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum QueryMsg {
-    // GetCount returns the current count as a json-encoded number
-    GetCount {},
+    GetPetStatus {},
 }
 
 // We define a custom struct for each query response
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct CountResponse {
-    pub count: i32,
+pub struct PetResponse {
+    pub name: String,
+    pub pet_type: PetType,
+    pub stage: Stage,
+    pub last_watering_time: SystemTime,
+    pub last_feeding_time: SystemTime,
+    pub birth_date: SystemTime,
 }

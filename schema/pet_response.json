@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PetResponse",
+  "type": "object",
+  "required": [
+    "birth_date",
+    "last_feeding_time",
+    "last_watering_time",
+    "name",
+    "pet_type",
+    "stage"
+  ],
+  "properties": {
+    "birth_date": {
+      "$ref": "#/definitions/SystemTime"
+    },
+    "last_feeding_time": {
+      "$ref": "#/definitions/SystemTime"
+    },
+    "last_watering_time": {
+      "$ref": "#/definitions/SystemTime"
+    },
+    "name": {
+      "type": "string"
+    },
+    "pet_type": {
+      "$ref": "#/definitions/PetType"
+    },
+    "stage": {
+      "$ref": "#/definitions/Stage"
+    }
+  },
+  "definitions": {
+    "PetType": {
+      "type": "string",
+      "enum": [
+        "Water",
+        "Fire",
+        "Grass",
+        "Air",
+        "Ground",
+        "Space"
+      ]
+    },
+    "Stage": {
+      "type": "string",
+      "enum": [
+        "Egg",
+        "Baby",
+        "Adult"
+      ]
+    },
+    "SystemTime": {
+      "type": "object",
+      "required": [
+        "nanos_since_epoch",
+        "secs_since_epoch"
+      ],
+      "properties": {
+        "nanos_since_epoch": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "secs_since_epoch": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        }
+      }
+    }
+  }
+}
