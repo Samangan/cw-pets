@@ -60,6 +60,10 @@ impl Pet {
     pub fn water(&mut self) {
         self.last_watering_time = SystemTime::now();
     }
+
+    pub fn feed(&mut self) {
+        self.last_feeding_time = SystemTime::now();
+    }
 }
 
 pub const PETS: Item<Pet> = Item::new("pet");

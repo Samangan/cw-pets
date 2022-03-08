@@ -40,6 +40,7 @@ pub fn execute(
 ) -> Result<Response, ContractError> {
     match msg {
         ExecuteMsg::GiveWater {} => try_water(deps, info),
+        ExecuteMsg::Feed {} => try_feed(deps, info),
     }
 }
 
@@ -53,6 +54,18 @@ pub fn try_water(deps: DepsMut, info: MessageInfo) -> Result<Response, ContractE
     })?;
 
     Ok(Response::new().add_attribute("method", "try_water"))
+}
+
+pub fn try_feed(deps: DepsMut, info: MessageInfo) -> Result<Response, ContractError> {
+    PETS.update(deps.storage, |mut pet| -> Result<_, ContractError> {
+        if info.sender != pet.owner {
+            return Err(ContractError::Unauthorized {});
+        }
+        pet.feed();
+        Ok(pet)
+    })?;
+
+    Ok(Response::new().add_attribute("method", "try_feed"))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -129,5 +142,34 @@ mod tests {
         assert_eq!(pet.birth_date, pet.last_feeding_time);
         assert_ne!(pet.birth_date, pet.last_watering_time);
         assert_eq!(true, pet.birth_date < pet.last_watering_time);
+    }
+
+    #[test]
+    fn test_feed() {
+        let mut deps = mock_dependencies_with_balance(&coins(2, "token"));
+
+        let msg = InstantiateMsg {
+            name: "peepo".to_string(),
+        };
+        let info = mock_info("creator", &coins(2, "token"));
+        let _res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        // non-owner cannot feed pet:
+        let info = mock_info("anyone", &coins(2, "token"));
+        let msg = ExecuteMsg::Feed {};
+        let res = execute(deps.as_mut(), mock_env(), info, msg).err();
+        assert_eq!(Some(ContractError::Unauthorized {}), res);
+
+        // owner can feed pet:
+        let info = mock_info("creator", &coins(2, "token"));
+        let msg = ExecuteMsg::Feed {};
+        let _res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        // pet.last_feed_time should be recent now:
+        let res = query(deps.as_ref(), mock_env(), QueryMsg::GetPetStatus {}).unwrap();
+        let pet: PetResponse = from_binary(&res).unwrap();
+        assert_eq!(pet.birth_date, pet.last_watering_time);
+        assert_ne!(pet.birth_date, pet.last_feeding_time);
+        assert_eq!(true, pet.birth_date < pet.last_feeding_time);
     }
 }
