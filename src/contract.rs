@@ -140,7 +140,6 @@ mod tests {
         let res = query(deps.as_ref(), mock_env(), QueryMsg::GetPetStatus {}).unwrap();
         let pet: PetResponse = from_binary(&res).unwrap();
         assert_eq!(pet.birth_date, pet.last_feeding_time);
-        assert_ne!(pet.birth_date, pet.last_watering_time);
         assert_eq!(true, pet.birth_date < pet.last_watering_time);
     }
 
@@ -169,7 +168,6 @@ mod tests {
         let res = query(deps.as_ref(), mock_env(), QueryMsg::GetPetStatus {}).unwrap();
         let pet: PetResponse = from_binary(&res).unwrap();
         assert_eq!(pet.birth_date, pet.last_watering_time);
-        assert_ne!(pet.birth_date, pet.last_feeding_time);
         assert_eq!(true, pet.birth_date < pet.last_feeding_time);
     }
 }
