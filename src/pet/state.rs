@@ -1,8 +1,7 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use std::time::SystemTime;
 
-use cosmwasm_std::Addr;
+use cosmwasm_std::{Addr, Timestamp};
 use cw_storage_plus::Item;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema, Copy)]
@@ -28,14 +27,13 @@ pub struct Pet {
     pub name: String,
     pub pet_type: PetType,
     pub stage: Stage,
-    pub last_watering_time: SystemTime,
-    pub last_feeding_time: SystemTime,
-    pub birth_date: SystemTime,
+    pub last_watering_time: Timestamp,
+    pub last_feeding_time: Timestamp,
+    pub birth_date: Timestamp,
 }
 
 impl Pet {
-    pub fn new(owner: Addr, name: String) -> Pet {
-        let now = SystemTime::now();
+    pub fn new(owner: Addr, name: String, now: Timestamp) -> Pet {
         let options = [
             PetType::Water,
             PetType::Fire,
@@ -57,12 +55,12 @@ impl Pet {
         }
     }
 
-    pub fn water(&mut self) {
-        self.last_watering_time = SystemTime::now();
+    pub fn water(&mut self, now: Timestamp) {
+        self.last_watering_time = now;
     }
 
-    pub fn feed(&mut self) {
-        self.last_feeding_time = SystemTime::now();
+    pub fn feed(&mut self, now: Timestamp) {
+        self.last_feeding_time = now;
     }
 }
 

@@ -1,6 +1,6 @@
+use cosmwasm_std::Timestamp;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use std::time::SystemTime;
 
 use crate::pet::state::{PetType, Stage};
 
@@ -30,7 +30,7 @@ pub struct PetResponse {
     pub name: String,
     pub pet_type: PetType,
     pub stage: Stage,
-    pub last_watering_time: SystemTime,
-    pub last_feeding_time: SystemTime,
-    pub birth_date: SystemTime,
+    pub last_watering_time: Timestamp,
+    pub last_feeding_time: Timestamp,
+    pub birth_date: Timestamp,
 }

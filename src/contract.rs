@@ -14,7 +14,7 @@ const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
     deps: DepsMut,
-    _env: Env,
+    env: Env,
     info: MessageInfo,
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
@@ -22,7 +22,7 @@ pub fn instantiate(
 
     // TODO: Validate `msg.name`
 
-    let pet = Pet::new(info.sender.clone(), msg.name);
+    let pet = Pet::new(info.sender.clone(), msg.name, env.block.time);
     PETS.save(deps.storage, &pet)?;
 
     Ok(Response::new()
@@ -34,34 +34,34 @@ pub fn instantiate(
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
     deps: DepsMut,
-    _env: Env,
+    env: Env,
     info: MessageInfo,
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::GiveWater {} => try_water(deps, info),
-        ExecuteMsg::Feed {} => try_feed(deps, info),
+        ExecuteMsg::GiveWater {} => try_water(deps, env, info),
+        ExecuteMsg::Feed {} => try_feed(deps, env, info),
     }
 }
 
-pub fn try_water(deps: DepsMut, info: MessageInfo) -> Result<Response, ContractError> {
+pub fn try_water(deps: DepsMut, env: Env, info: MessageInfo) -> Result<Response, ContractError> {
     PETS.update(deps.storage, |mut pet| -> Result<_, ContractError> {
         if info.sender != pet.owner {
             return Err(ContractError::Unauthorized {});
         }
-        pet.water();
+        pet.water(env.block.time);
         Ok(pet)
     })?;
 
     Ok(Response::new().add_attribute("method", "try_water"))
 }
 
-pub fn try_feed(deps: DepsMut, info: MessageInfo) -> Result<Response, ContractError> {
+pub fn try_feed(deps: DepsMut, env: Env, info: MessageInfo) -> Result<Response, ContractError> {
     PETS.update(deps.storage, |mut pet| -> Result<_, ContractError> {
         if info.sender != pet.owner {
             return Err(ContractError::Unauthorized {});
         }
-        pet.feed();
+        pet.feed(env.block.time);
         Ok(pet)
     })?;
 
@@ -91,8 +91,11 @@ fn query_pet_status(deps: Deps) -> StdResult<PetResponse> {
 mod tests {
     use super::*;
     use crate::pet::state::{PetType, Stage};
-    use cosmwasm_std::testing::{mock_dependencies_with_balance, mock_env, mock_info};
+    use cosmwasm_std::testing::{
+        mock_dependencies_with_balance, mock_env, mock_info, MOCK_CONTRACT_ADDR,
+    };
     use cosmwasm_std::{coins, from_binary};
+    use cosmwasm_std::{Addr, BlockInfo, ContractInfo, Timestamp, TransactionInfo};
 
     #[test]
     fn proper_initialization() {
@@ -134,7 +137,18 @@ mod tests {
         // owner can water pet:
         let info = mock_info("creator", &coins(2, "token"));
         let msg = ExecuteMsg::GiveWater {};
-        let _res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+        let env = Env {
+            block: BlockInfo {
+                height: 12_345,
+                time: Timestamp::from_nanos(1_572_797_419_879_305_533),
+                chain_id: "cosmos-testnet-14002".to_string(),
+            },
+            transaction: Some(TransactionInfo { index: 3 }),
+            contract: ContractInfo {
+                address: Addr::unchecked(MOCK_CONTRACT_ADDR),
+            },
+        };
+        let _res = execute(deps.as_mut(), env, info, msg).unwrap();
 
         // pet.last_watered_time should be recent now:
         let res = query(deps.as_ref(), mock_env(), QueryMsg::GetPetStatus {}).unwrap();
@@ -162,7 +176,19 @@ mod tests {
         // owner can feed pet:
         let info = mock_info("creator", &coins(2, "token"));
         let msg = ExecuteMsg::Feed {};
-        let _res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+        let env = Env {
+            block: BlockInfo {
+                height: 12_345,
+                time: Timestamp::from_nanos(1_572_797_419_879_305_533),
+                chain_id: "cosmos-testnet-14002".to_string(),
+            },
+            transaction: Some(TransactionInfo { index: 3 }),
+            contract: ContractInfo {
+                address: Addr::unchecked(MOCK_CONTRACT_ADDR),
+            },
+        };
+
+        let _res = execute(deps.as_mut(), env, info, msg).unwrap();
 
         // pet.last_feed_time should be recent now:
         let res = query(deps.as_ref(), mock_env(), QueryMsg::GetPetStatus {}).unwrap();
