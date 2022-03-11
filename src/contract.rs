@@ -22,7 +22,12 @@ pub fn instantiate(
 
     // TODO: Validate `msg.name`
 
-    let pet = Pet::new(info.sender.clone(), msg.name, env.block.time);
+    let pet = Pet::new(
+        info.sender.clone(),
+        msg.name,
+        env.block.height,
+        env.block.time,
+    );
     PETS.save(deps.storage, &pet)?;
 
     Ok(Response::new()
@@ -115,7 +120,7 @@ mod tests {
         let pet: PetResponse = from_binary(&res).unwrap();
         assert_eq!("peepo", pet.name);
         assert_eq!(Stage::Egg, pet.stage);
-        assert_eq!(PetType::Fire, pet.pet_type);
+        assert_eq!(PetType::Air, pet.pet_type);
     }
 
     #[test]

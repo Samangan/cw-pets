@@ -33,7 +33,7 @@ pub struct Pet {
 }
 
 impl Pet {
-    pub fn new(owner: Addr, name: String, now: Timestamp) -> Pet {
+    pub fn new(owner: Addr, name: String, height: u64, now: Timestamp) -> Pet {
         let options = [
             PetType::Water,
             PetType::Fire,
@@ -42,12 +42,11 @@ impl Pet {
             PetType::Ground,
             PetType::Space,
         ];
-        let idx = name.chars().take(1).last().unwrap().to_digit(32).unwrap() as usize;
 
         Pet {
             owner,
             name,
-            pet_type: options[idx % options.len()],
+            pet_type: options[height as usize % options.len()],
             stage: Stage::Egg,
             last_watering_time: now,
             last_feeding_time: now,
