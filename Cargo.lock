@@ -146,7 +146,7 @@ dependencies = [
 
 [[package]]
 name = "cw-pets"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
@@ -154,6 +154,7 @@ dependencies = [
  "cw-storage-plus",
  "cw2",
  "schemars",
+ "semver",
  "serde",
  "thiserror",
 ]
@@ -427,6 +428,12 @@ dependencies = [
  "serde_derive_internals",
  "syn",
 ]
+
+[[package]]
+name = "semver"
+version = "1.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a4a3381e03edd24287172047536f20cabde766e2cd3e65e6b00fb3af51c4f38d"
 
 [[package]]
 name = "serde"

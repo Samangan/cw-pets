@@ -1,6 +1,6 @@
 [package]
 name = "cw-pets"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Harry Hull <harry.hull1@gmail.com>"]
 edition = "2018"
 
@@ -45,6 +45,7 @@ cosmwasm-storage = { version = "1.0.0-beta" }
 cw-storage-plus = "0.11"
 cw2 = "0.11"
 schemars = "0.8"
+semver = "1"
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 thiserror = { version = "1.0" }
 

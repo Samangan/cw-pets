@@ -1,7 +1,10 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
-use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
-use cw2::set_contract_version;
+use cosmwasm_std::{
+    to_binary, Binary, Deps, DepsMut, Empty, Env, MessageInfo, Response, StdError, StdResult,
+};
+use cw2::{get_contract_version, set_contract_version};
+use semver::Version;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, PetResponse, QueryMsg};
@@ -90,6 +93,29 @@ fn query_pet_status(deps: Deps) -> StdResult<PetResponse> {
         last_watering_time: pet.last_watering_time,
         birth_date: pet.birth_date,
     })
+}
+
+// TODO: Add unit tests to migrate()
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn migrate(deps: DepsMut, _env: Env, _msg: Empty) -> Result<Response, ContractError> {
+    let storage_ver = get_contract_version(deps.storage)?;
+
+    // ensure we are migrating from an allowed contract
+    if storage_ver.contract != CONTRACT_NAME {
+        return Err(StdError::generic_err("Can only upgrade from same type").into());
+    }
+
+    let cur_ver: Version = storage_ver.version.parse()?;
+    let ver: Version = CONTRACT_VERSION.parse()?;
+    if cur_ver < ver {
+        set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
+
+        // If state structure changed in any contract version in the way migration is needed, it
+        // should occur here
+    }
+
+    Ok(Response::default())
 }
 
 #[cfg(test)]
