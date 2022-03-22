@@ -10,6 +10,8 @@ use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, PetResponse, QueryMsg};
 use crate::pet::state::{Pet, PETS};
 
+// TODO: Refactor to use the production ready cw-20 base contract
+
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:cw-pets";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -52,6 +54,7 @@ pub fn execute(
     }
 }
 
+// TODO: Remove watering for now (Feeding can be made generic to feed items later if I want)
 pub fn try_water(deps: DepsMut, env: Env, info: MessageInfo) -> Result<Response, ContractError> {
     PETS.update(deps.storage, |mut pet| -> Result<_, ContractError> {
         if info.sender != pet.owner {
@@ -69,6 +72,11 @@ pub fn try_feed(deps: DepsMut, env: Env, info: MessageInfo) -> Result<Response, 
         if info.sender != pet.owner {
             return Err(ContractError::Unauthorized {});
         }
+
+        // TODO: After or before feeding check if it's time to evolve to the next pet.Stage:
+        // * If the pet is happy enough (this can be based on pet.last_feeding_time and pet.stats.happiness_multiplier maybe)
+        //   then maybe theres a percent chance of evolving (but I need to figure out the 'randomness' in a similar way that I did for stat selection and pet.pet_type selection but I should move that over into a separate module)
+
         pet.feed(env.block.time);
         Ok(pet)
     })?;
